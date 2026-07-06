@@ -20,6 +20,7 @@ import { combine } from 'zustand/middleware'
 import type { TokenFormValues } from '@/components/Token'
 
 import LS from '@/lib/localStorage'
+import { type MoaUser, createMoaStorage } from '@/lib/moaStorage'
 
 export const useAuthStore = create(
   combine(
@@ -28,6 +29,7 @@ export const useAuthStore = create(
       namespace: 'All',
       tokens: [] as TokenFormValues[],
       tokenName: '',
+      moaUser: null as MoaUser | null,
     },
     (set) => ({
       actions: {
@@ -48,6 +50,21 @@ export const useAuthStore = create(
           set({ authOpen: true, tokens: [], tokenName: '' })
           LS.remove('token')
           LS.remove('token-name')
+        },
+        setMoaUser: (moaUser: MoaUser | null) => set({ moaUser }),
+        setMoaToken: (token: string) => {
+          const storage = createMoaStorage()
+          storage.setToken(token)
+        },
+        getMoaToken: () => {
+          const storage = createMoaStorage()
+          return storage.getToken()
+        },
+        removeMoaToken: () => {
+          const storage = createMoaStorage()
+          storage.removeToken()
+          storage.removeUser()
+          set({ moaUser: null })
         },
       },
     }),

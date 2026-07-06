@@ -14,7 +14,13 @@
  * limitations under the License.
  *
  */
-import { applyAPIAuthentication, applyErrorHandling, applyNSParam } from '@/api/interceptors'
+import {
+  applyAPIAuthentication,
+  applyErrorHandling,
+  applyMOAAuthentication,
+  applyNSParam,
+  resetMOAAuthentication,
+} from '@/api/interceptors'
 import { Stale } from '@/api/queryUtils'
 import ConfirmDialog from '@/mui-extends/ConfirmDialog'
 import Loading from '@/mui-extends/Loading'
@@ -36,12 +42,13 @@ import {
 import { styled } from '@mui/material/styles'
 import Cookies from 'js-cookie'
 import { lazy, useEffect, useState } from 'react'
-import { Outlet } from 'react-router'
+import { Outlet, useNavigate } from 'react-router'
 
 import { TokenFormValues } from '@/components/Token'
 
 import insertCommonStyle from '@/lib/d3/insertCommonStyle'
 import LS from '@/lib/localStorage'
+import { consumeMoaCallback, ensureMoaAuth } from '@/lib/moaAuth'
 
 import Navbar from './Navbar'
 import { closedWidth, openedWidth } from './Sidebar'
@@ -67,6 +74,7 @@ const Root = styled(Box, {
 
 const TopContainer = () => {
   const theme = useTheme()
+  const navigate = useNavigate()
 
   const alert = useComponentStore((state) => state.alert)
   const alertOpen = useComponentStore((state) => state.alertOpen)
@@ -74,7 +82,8 @@ const TopContainer = () => {
   const confirmOpen = useComponentStore((state) => state.confirmOpen)
   const { setAlert, setAlertOpen, setConfirmOpen } = useComponentActions()
   const authOpen = useAuthStore((state) => state.authOpen)
-  const { setAuthOpen, setNameSpace, setTokenName, setTokens, removeToken } = useAuthActions()
+  const { setAuthOpen, setNameSpace, setTokenName, setTokens, removeToken, removeMoaToken, setMoaUser } =
+    useAuthActions()
 
   // Sidebar related
   const miniSidebar = LS.get('mini-sidebar') === 'y'
@@ -92,9 +101,38 @@ const TopContainer = () => {
     },
   })
 
+  // MOA guard — runs above the RBAC auth dialog. In MOA mode the dialog is
+  // never used: we either restore the persisted token, or redirect to the MOA
+  // login page automatically.
+  useEffect(() => {
+    if (!data || !data.moa_security_mode) {
+      return
+    }
+
+    // Returning from MOA login: persist the callback token, then reload so the
+    // guard re-evaluates with the token in storage.
+    if (consumeMoaCallback(window.location.search)) {
+      navigate(0)
+
+      return
+    }
+
+    const result = ensureMoaAuth(data)
+    if (result.status === 'authenticated') {
+      applyMOAAuthentication({ token: result.token, header: result.header })
+      setMoaUser(result.user)
+      setLoading(false)
+    } else {
+      // No token yet — bounce to MOA login. Keep `loading` true so the RBAC
+      // dialog never flashes before the navigation fires.
+      window.location.href = result.loginUrl
+    }
+  }, [data, navigate, setMoaUser])
+
   useEffect(() => {
     /**
-     * Set authorization (RBAC token / GCP) for API use.
+     * Set authorization (RBAC token / GCP) for API use. MOA is handled
+     * exclusively by the guard effect above and never reaches here.
      */
     function setAuth() {
       // GCP
@@ -133,19 +171,33 @@ const TopContainer = () => {
       }
     }
 
-    if (data) {
-      if (data.security_mode) {
-        setAuth()
-      }
+    if (!data) {
+      return
+    }
 
+    // MOA mode is owned by the guard effect; never fall through to RBAC.
+    if (data.security_mode && !data.moa_security_mode) {
+      setAuth()
+    }
+
+    // Lower loading only outside MOA mode — in MOA mode the guard effect is
+    // responsible (on `authenticated`), or stays true during redirect.
+    if (!data.moa_security_mode) {
       setLoading(false)
     }
-  }, [data])
+  }, [data, setAuthOpen, setNameSpace, setTokenName, setTokens])
 
   useEffect(() => {
-    applyErrorHandling({ openAlert: setAlert, removeToken })
+    applyErrorHandling({
+      openAlert: setAlert,
+      removeToken: () => {
+        removeToken()
+        removeMoaToken()
+        resetMOAAuthentication()
+      },
+    })
     insertCommonStyle()
-  }, [])
+  }, [data, removeMoaToken, removeToken, setAlert])
 
   const isTabletScreen = useMediaQuery(theme.breakpoints.down('md'))
   useEffect(() => {

@@ -3526,6 +3526,19 @@ definitions:
       listen_port:
         default: 2333
         type: integer
+      moa_login_url:
+        default: https://login.moa.moonton.net/login
+        type: string
+      moa_project_id:
+        type: string
+      moa_security_mode:
+        default: false
+        description: MoaSecurityMode will use moa authentication to login to cluster
+          user
+        type: boolean
+      moa_token_header:
+        default: Moa-Token
+        type: string
       oidc_security_mode:
         default: false
         description: OidcSecurityMode will use oidc authentication to login to cluster

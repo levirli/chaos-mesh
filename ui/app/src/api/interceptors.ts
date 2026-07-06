@@ -17,6 +17,8 @@
 import { type Alert } from '@/zustand/component'
 import type { AxiosError } from 'axios'
 
+import { createMoaStorage } from '@/lib/moaStorage'
+
 import http from './http'
 
 interface ErrorData {
@@ -117,6 +119,32 @@ export const applyAPIAuthentication = (token: string | GCPToken) => {
 }
 
 export const resetAPIAuthentication = () => http.interceptors.request.eject(tokenInterceptorId)
+
+let moaInterceptorId: number
+
+interface MoaAuthConfig {
+  token: string
+  header: string
+}
+
+export const applyMOAAuthentication = ({ token, header }: MoaAuthConfig) => {
+  if (moaInterceptorId !== undefined) {
+    http.interceptors.request.eject(moaInterceptorId)
+  }
+
+  moaInterceptorId = http.interceptors.request.use((config) => {
+    const storage = createMoaStorage()
+    const currentToken = storage.getToken() || token
+
+    if (currentToken) {
+      config.headers[header] = header.toLowerCase() === 'authorization' ? `Bearer ${currentToken}` : currentToken
+    }
+
+    return config
+  })
+}
+
+export const resetMOAAuthentication = () => http.interceptors.request.eject(moaInterceptorId)
 
 let nsInterceptorId: number
 

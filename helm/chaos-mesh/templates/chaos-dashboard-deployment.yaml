@@ -110,6 +110,14 @@ spec:
             - name: OIDC_CA_FILE
               value: "/etc/chaos-mesh/oidc-ca/ca.pem"
             {{- end }}
+            - name: MOA_SECURITY_MODE
+              value: "{{ .Values.dashboard.moaSecurityMode.enabled }}"
+            - name: MOA_PROJECT_ID
+              value: "{{ .Values.dashboard.moaSecurityMode.projectId }}"
+            - name: MOA_LOGIN_URL
+              value: "{{ .Values.dashboard.moaSecurityMode.loginUrl }}"
+            - name: MOA_TOKEN_HEADER
+              value: "{{ .Values.dashboard.moaSecurityMode.tokenHeader }}"
             - name: DNS_SERVER_CREATE
               value: "{{ .Values.dnsServer.create }}"
             - name: ROOT_URL

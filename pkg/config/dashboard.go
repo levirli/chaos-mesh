@@ -51,6 +51,11 @@ type ChaosDashboardConfig struct {
 	OidcClientSecret string `envconfig:"OIDC_CLIENT_SECRET" default:"" json:"-"`
 	OidcIssuerURL    string `envconfig:"OIDC_ISSUER_URL" default:"" json:"-"`
 	OidcCaFile       string `envconfig:"OIDC_CA_FILE" default:"" json:"-"`
+	// MoaSecurityMode will use moa authentication to login to cluster user
+	MoaSecurityMode   bool   `envconfig:"MOA_SECURITY_MODE" default:"false" json:"moa_security_mode"`
+	MoaProjectId      string `envconfig:"MOA_PROJECT_ID" default:"" json:"moa_project_id"`
+	MoaLoginUrl    string `envconfig:"MOA_LOGIN_URL" default:"https://login.moa.moonton.net/login" json:"moa_login_url"`
+	MoaTokenHeader string `envconfig:"MOA_TOKEN_HEADER" default:"Moa-Token" json:"moa_token_header"`
 
 	RootUrl string `envconfig:"ROOT_URL" default:"http://localhost:2333" json:"root_path"`
 

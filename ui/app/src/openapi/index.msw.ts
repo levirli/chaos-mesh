@@ -21,6 +21,8 @@ import {
   V1AzureDataDiskCachingMode,
   V1AzureDataDiskKind,
   V1ContainerRestartPolicy,
+  V1ContainerRestartRuleAction,
+  V1ContainerRestartRuleOnExitCodesOperator,
   V1HostPathType,
   V1LabelSelectorOperator,
   V1ManagedFieldsOperationType,
@@ -227,9 +229,13 @@ export const getGetCommonConfigResponseMock = (
   dns_server_create: faker.datatype.boolean(),
   enableFilterNamespace: faker.datatype.boolean(),
   gcp_security_mode: faker.datatype.boolean(),
-  oidc_security_mode: faker.datatype.boolean(),
   listen_host: faker.string.alpha({ length: { min: 10, max: 20 } }),
   listen_port: faker.number.int(),
+  moa_login_url: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  moa_project_id: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  moa_security_mode: faker.datatype.boolean(),
+  moa_token_header: faker.string.alpha({ length: { min: 10, max: 20 } }),
+  oidc_security_mode: faker.datatype.boolean(),
   root_path: faker.string.alpha({ length: { min: 10, max: 20 } }),
   security_mode: faker.datatype.boolean(),
   target_namespace: faker.string.alpha({ length: { min: 10, max: 20 } }),
@@ -4099,6 +4105,14 @@ export const getPostSchedulesResponseMock = (
                             fieldPath: faker.string.alpha({ length: { min: 10, max: 20 } }),
                           },
                         },
+                        fileKeyRef: {
+                          ...{
+                            key: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                            optional: faker.datatype.boolean(),
+                            path: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                            volumeName: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          },
+                        },
                         resourceFieldRef: {
                           ...{
                             containerName: faker.string.alpha({ length: { min: 10, max: 20 } }),
@@ -4383,6 +4397,20 @@ export const getPostSchedulesResponseMock = (
                     },
                   },
                   restartPolicy: faker.helpers.arrayElement(Object.values(V1ContainerRestartPolicy)),
+                  restartPolicyRules: Array.from(
+                    { length: faker.number.int({ min: 1, max: 10 }) },
+                    (_, i) => i + 1,
+                  ).map(() => ({
+                    action: faker.helpers.arrayElement(Object.values(V1ContainerRestartRuleAction)),
+                    exitCodes: {
+                      ...{
+                        operator: faker.helpers.arrayElement(Object.values(V1ContainerRestartRuleOnExitCodesOperator)),
+                        values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+                          faker.number.int(),
+                        ),
+                      },
+                    },
+                  })),
                   securityContext: {
                     ...{
                       allowPrivilegeEscalation: faker.datatype.boolean(),
@@ -4919,6 +4947,19 @@ export const getPostSchedulesResponseMock = (
                               },
                             }),
                           ),
+                        },
+                      },
+                      podCertificate: {
+                        ...{
+                          certificateChainPath: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          credentialBundlePath: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          keyPath: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          keyType: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          maxExpirationSeconds: faker.number.int(),
+                          signerName: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          userAnnotations: {
+                            [faker.string.alphanumeric(5)]: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                          },
                         },
                       },
                       secret: {
@@ -7856,6 +7897,14 @@ export const getPostWorkflowsRenderTaskHttpResponseMock = (
                     fieldPath: faker.string.alpha({ length: { min: 10, max: 20 } }),
                   },
                 },
+                fileKeyRef: {
+                  ...{
+                    key: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                    optional: faker.datatype.boolean(),
+                    path: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                    volumeName: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  },
+                },
                 resourceFieldRef: {
                   ...{
                     containerName: faker.string.alpha({ length: { min: 10, max: 20 } }),
@@ -8114,6 +8163,19 @@ export const getPostWorkflowsRenderTaskHttpResponseMock = (
             },
           },
           restartPolicy: faker.helpers.arrayElement(Object.values(V1ContainerRestartPolicy)),
+          restartPolicyRules: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(
+            () => ({
+              action: faker.helpers.arrayElement(Object.values(V1ContainerRestartRuleAction)),
+              exitCodes: {
+                ...{
+                  operator: faker.helpers.arrayElement(Object.values(V1ContainerRestartRuleOnExitCodesOperator)),
+                  values: Array.from({ length: faker.number.int({ min: 1, max: 10 }) }, (_, i) => i + 1).map(() =>
+                    faker.number.int(),
+                  ),
+                },
+              },
+            }),
+          ),
           securityContext: {
             ...{
               allowPrivilegeEscalation: faker.datatype.boolean(),
@@ -8617,6 +8679,19 @@ export const getPostWorkflowsRenderTaskHttpResponseMock = (
                       },
                     },
                   })),
+                },
+              },
+              podCertificate: {
+                ...{
+                  certificateChainPath: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  credentialBundlePath: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  keyPath: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  keyType: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  maxExpirationSeconds: faker.number.int(),
+                  signerName: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  userAnnotations: {
+                    [faker.string.alphanumeric(5)]: faker.string.alpha({ length: { min: 10, max: 20 } }),
+                  },
                 },
               },
               secret: {

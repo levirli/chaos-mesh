@@ -21,6 +21,7 @@ import { AppBar, Box, IconButton, Toolbar } from '@mui/material'
 
 import Search from '@/components/Search'
 
+import MoaUser from './MoaUser'
 import Namespace from './Namespace'
 
 interface HeaderProps {
@@ -35,9 +36,10 @@ const Navbar: ReactFCWithChildren<HeaderProps> = ({ openDrawer, handleDrawerTogg
         <IconButton size="large" onClick={handleDrawerToggle} sx={{ color: 'onSurfaceVariant.main' }}>
           {openDrawer ? <MenuOpenIcon fontSize="medium" /> : <MenuIcon fontSize="medium" />}
         </IconButton>
-        <Space direction="row">
+        <Space direction="row" alignItems="center">
           <Search />
           <Namespace />
+          <MoaUser />
         </Space>
       </Box>
     </Toolbar>

@@ -97,6 +97,14 @@ The following tables list the configurable parameters of the Chaos Mesh chart an
 | `dashboard.gcpSecurityMode` | Enable GCP Authentication Integration, see: <https://chaos-mesh.org/docs/gcp-authentication/> for more details | `false` |
 | `dashboard.gcpClientId` | GCP app's client ID with GCP Authentication Integration | `` |
 | `dashboard.gcpClientSecret` | GCP app's client secret with GCP Authentication Integration | `` |
+| `dashboard.oidcSecurityMode.enabled` | Enable OIDC Authentication Integration | `false` |
+| `dashboard.oidcSecurityMode.clientId` | OIDC app's client ID | `` |
+| `dashboard.oidcSecurityMode.clientSecret` | OIDC app's client secret | `` |
+| `dashboard.oidcSecurityMode.issuerUrl` | OIDC issuer URL without trailing slashes | `` |
+| `dashboard.moaSecurityMode.enabled` | Enable MOA Authentication Integration | `false` |
+| `dashboard.moaSecurityMode.projectId` | MOA project ID used for token validation | `` |
+| `dashboard.moaSecurityMode.loginUrl` | MOA login page URL | `https://login.moa.moonton.net/login` |
+| `dashboard.moaSecurityMode.tokenHeader` | Header name used to transport the MOA token | `Moa-Token` |
 | `dashboard.nodeSelector` | Node labels for chaos-dashboard pod assignment | `{}` |
 | `dashboard.tolerations` | Toleration labels for chaos-dashboard pod assignment | `[]` |
 | `dashboard.affinity` | Map of chaos-dashboard node/pod affinities | `{}` |

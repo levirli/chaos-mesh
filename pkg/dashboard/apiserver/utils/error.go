@@ -31,6 +31,7 @@ var (
 	ErrNS             = errorx.NewNamespace("error.api")
 	ErrUnknown        = ErrNS.NewType("unknown")               // 500
 	ErrBadRequest     = ErrNS.NewType("bad_request")           // 400
+	ErrUnauthorized   = ErrNS.NewType("unauthorized")          // 401
 	ErrNotFound       = ErrNS.NewType("resource_not_found")    // 404
 	ErrInternalServer = ErrNS.NewType("internal_server_error") // 500
 	// Custom
@@ -52,7 +53,7 @@ func SetAPIError(c *gin.Context, err *errorx.Error) {
 	switch typeName {
 	case ErrBadRequest.FullName():
 		code = http.StatusBadRequest
-	case ErrNoClusterPrivilege.FullName(), ErrNoNamespacePrivilege.FullName():
+	case ErrUnauthorized.FullName(), ErrNoClusterPrivilege.FullName(), ErrNoNamespacePrivilege.FullName():
 		code = http.StatusUnauthorized
 	case ErrNotFound.FullName():
 		code = http.StatusNotFound

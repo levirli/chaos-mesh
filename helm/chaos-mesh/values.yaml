@@ -310,6 +310,12 @@ dashboard:
     existingSecret: ""
     # for self-signed CA
     caBundlePEM: ""
+  # Enable MOA Authentication Integration
+  moaSecurityMode:
+    enabled: false
+    projectId: ""
+    loginUrl: "https://login.moa.moonton.net/login"
+    tokenHeader: "Moa-Token"
 
   # Node labels for chaos-dashboard  pod assignment
   nodeSelector: {}
